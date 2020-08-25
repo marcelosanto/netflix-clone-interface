@@ -7,7 +7,6 @@
 
 # testing
 /coverage
-/src/Tmdb.js
 
 # production
 /build
