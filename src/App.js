@@ -4,10 +4,12 @@ import Tmdb from './Tmdb'
 
 import MovieRow from './components/MovieRow.js'
 import FeaturedMovie from './components/FeaturedMovie'
+import Header from './components/Header'
 
 function App() {
   const [movieList, setMovieList] = useState([])
-  const [featuredData, setFeaturedData] = useState([])
+  const [featuredData, setFeaturedData] = useState(null)
+  const [blackHeader, setBlackHeader] = useState(false)
 
   useEffect(() => {
     const loadAll = async () => {
@@ -22,19 +24,56 @@ function App() {
       )
       let chosen = originals[0].items.results[randomChosen]
       let chosenInfo = await Tmdb.getMovieInfo(chosen.id, 'tv')
+      setFeaturedData(chosenInfo)
     }
 
     loadAll()
   }, [])
 
+  useEffect(() => {
+    const scrollListener = () => {
+      if (window.scrollY > 10) {
+        setBlackHeader(true)
+      } else {
+        setBlackHeader(false)
+      }
+    }
+
+    window.addEventListener('scroll', scrollListener)
+
+    return () => {
+      window.removeEventListener('scroll', scrollListener)
+    }
+  }, [])
+
   return (
     <div className='page'>
+      <Header black={blackHeader} />
       {featuredData && <FeaturedMovie item={featuredData} />}
       <section className='lists'>
         {movieList.map((item, key) => (
           <MovieRow key={key} title={item.title} items={item.items} />
         ))}
       </section>
+
+      <footer>
+        Feito com{' '}
+        <span role='img' aria-label='coração'>
+          ❤️
+        </span>
+        por Marcello Santos <br />
+        Direitos de imagem pela Netflix <br />
+        Dados pegos do site Themoviedb.org <br />
+      </footer>
+
+      {movieList.length <= 0 && (
+        <div className='loading'>
+          <img
+            src='https://media.wired.com/photos/592744d3f3e2356fd800bf00/master/w_2000,c_limit/Netflix_LoadTime.gif'
+            alt='Carregando'
+          />
+        </div>
+      )}
     </div>
   )
 }
